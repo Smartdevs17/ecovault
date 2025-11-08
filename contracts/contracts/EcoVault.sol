@@ -5,14 +5,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./ProjectRegistry.sol";
 import "./ImpactNFT.sol";
+import "./TreasuryVault.sol";
 
 /**
  * @title EcoVault
  * @notice Main contract that manages funding, NFT minting, and project interactions
+ * @dev Integrates with TreasuryVault for yield generation via Octant V2
  */
 contract EcoVault is Ownable, ReentrancyGuard {
+
 	ProjectRegistry public projectRegistry;
 	ImpactNFT public impactNFT;
+	TreasuryVault public treasury;
 
 	struct Funding {
 		address funder;
@@ -20,12 +24,12 @@ contract EcoVault is Ownable, ReentrancyGuard {
 		uint256 timestamp;
 	}
 
-	mapping(uint256 => Funding[]) public projectFundings;
-	mapping(address => mapping(uint256 => uint256)) public userProjectContributions; // user => projectId => total contribution
-	mapping(uint256 => uint256) public projectTotalContributions; // projectId => total contributions
+		mapping(uint256 => Funding[]) public projectFundings;
+		mapping(address => mapping(uint256 => uint256)) public userProjectContributions;
+		mapping(uint256 => uint256) public projectTotalContributions;
 
-	uint256 public constant MIN_FUNDING_AMOUNT = 0.001 ether;
-	uint256 public constant NFT_MINT_THRESHOLD = 0.01 ether; // Minimum contribution to mint NFT
+		uint256 public constant MIN_FUNDING_AMOUNT = 0.001 ether;
+		uint256 public constant NFT_MINT_THRESHOLD = 0.01 ether;
 
 	event ProjectFunded(
 		uint256 indexed projectId,
@@ -40,18 +44,25 @@ contract EcoVault is Ownable, ReentrancyGuard {
 	);
 	event ProjectRegistryUpdated(address indexed newRegistry);
 	event ImpactNFTUpdated(address indexed newImpactNFT);
+	event TreasuryUpdated(address indexed newTreasury);
 
 	modifier validProject(uint256 _projectId) {
 		require(_projectId > 0, "Invalid project ID");
 		_;
 	}
 
-	constructor(address _projectRegistry, address _impactNFT) Ownable(msg.sender) {
+	constructor(
+		address _projectRegistry,
+		address _impactNFT,
+		address _treasury
+	) Ownable(msg.sender) {
 		require(_projectRegistry != address(0), "Invalid project registry address");
 		require(_impactNFT != address(0), "Invalid impact NFT address");
+		require(_treasury != address(0), "Invalid treasury address");
 
 		projectRegistry = ProjectRegistry(_projectRegistry);
 		impactNFT = ImpactNFT(_impactNFT);
+		treasury = TreasuryVault(payable(_treasury));
 	}
 
 	/**
@@ -66,24 +77,19 @@ contract EcoVault is Ownable, ReentrancyGuard {
 		require(project.isActive, "Project is not active");
 		require(project.isVerified, "Project must be verified before funding");
 
-		// Record the funding
 		projectFundings[_projectId].push(Funding({
 			funder: msg.sender,
 			amount: msg.value,
 			timestamp: block.timestamp
 		}));
 
-		// Update contribution tracking
 		userProjectContributions[msg.sender][_projectId] += msg.value;
 		projectTotalContributions[_projectId] += msg.value;
 
-		// Transfer funds to project owner
-		(bool success, ) = project.owner.call{value: msg.value}("");
-		require(success, "Transfer failed");
+		treasury.depositForProject{value: msg.value}(_projectId);
 
 		emit ProjectFunded(_projectId, msg.sender, msg.value, block.timestamp);
 
-		// Mint NFT if contribution threshold is met
 		if (msg.value >= NFT_MINT_THRESHOLD) {
 			_mintImpactNFTForFunding(_projectId, msg.sender, msg.value);
 		}
@@ -166,6 +172,16 @@ contract EcoVault is Ownable, ReentrancyGuard {
 		require(_newImpactNFT != address(0), "Invalid NFT address");
 		impactNFT = ImpactNFT(_newImpactNFT);
 		emit ImpactNFTUpdated(_newImpactNFT);
+	}
+
+	/**
+	 * @notice Update treasury address (only owner)
+	 * @param _newTreasury New treasury address
+	 */
+	function updateTreasury(address _newTreasury) public onlyOwner {
+		require(_newTreasury != address(0), "Invalid treasury address");
+		treasury = TreasuryVault(payable(_newTreasury));
+		emit TreasuryUpdated(_newTreasury);
 	}
 
 	/**

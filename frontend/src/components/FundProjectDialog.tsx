@@ -89,14 +89,24 @@ export function FundProjectDialog({ projectId, projectName, children, onSuccess 
 			// Wait a moment for transaction to be indexed, then force refetch
 			const refreshData = async () => {
 				// Small delay to allow blockchain to index the transaction
-				await new Promise(resolve => setTimeout(resolve, 1500))
+				await new Promise(resolve => setTimeout(resolve, 2000))
 				
-				// Force refetch all project-related queries
+				// Force refetch all project-related queries with specific project ID
 				await Promise.all([
 					queryClient.refetchQueries({ queryKey: ['projects'] }),
 					queryClient.refetchQueries({ queryKey: ['project'] }),
-					queryClient.refetchQueries({ queryKey: ['projectTotalContributions'] }),
-					queryClient.refetchQueries({ queryKey: ['userContribution'] }),
+					queryClient.refetchQueries({ 
+						queryKey: ['projectTotalContributions'],
+						exact: false,
+					}),
+					queryClient.refetchQueries({ 
+						queryKey: ['userContribution'],
+						exact: false,
+					}),
+					queryClient.refetchQueries({ 
+						queryKey: ['projectFundings'],
+						exact: false,
+					}),
 				])
 			}
 			

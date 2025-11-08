@@ -13,13 +13,10 @@ export const getAllProjects = async (req: Request, res: Response, next: NextFunc
 
 		const projects = await Project.find(filter).sort({ createdAt: -1 })
 
-		// Sync funding data from blockchain for projects with onChainId (non-blocking)
-		// Use Promise.allSettled to avoid blocking the response if blockchain calls timeout
 		const syncPromises = projects
 			.filter(p => p.onChainId)
 			.map(async (project) => {
 				try {
-					// Get total contributions and fundings with timeout handling
 					const [totalContributionsResult, fundingsResult] = await Promise.allSettled([
 						getProjectTotalContributions(project.onChainId!),
 						getProjectFundings(project.onChainId!),
@@ -34,18 +31,14 @@ export const getAllProjects = async (req: Request, res: Response, next: NextFunc
 						project.contributors = uniqueContributors.size
 					}
 					
-					// Only save if we got at least one successful result
 					if (totalContributionsResult.status === 'fulfilled' || fundingsResult.status === 'fulfilled') {
 						await project.save()
 					}
 				} catch (error) {
-					// If sync fails, continue with existing data
 				}
 			})
 		
-		// Don't await - let it sync in background, return projects immediately
 		Promise.allSettled(syncPromises).catch(() => {
-			// Silently handle any errors in background sync
 		})
 
 		res.json({
@@ -62,15 +55,12 @@ export const getProject = async (req: Request, res: Response, next: NextFunction
 	try {
 		const { id } = req.params
 
-		// Try to find in database first
 		let project = await Project.findById(id)
-
-		// If not found and has onChainId, try to fetch from blockchain
+		
 		if (!project && req.query.onChainId) {
 			const onChainId = Number(req.query.onChainId)
 			const chainProject = await getProjectFromChain(onChainId)
 			
-			// Create project from chain data
 			project = await Project.create({
 				name: chainProject.name,
 				description: chainProject.description,
@@ -87,41 +77,33 @@ export const getProject = async (req: Request, res: Response, next: NextFunction
 			throw createError('Project not found', 404)
 		}
 
-		// Sync funding data from blockchain if onChainId exists
 		let fundings: Array<{ funder: string; amount: string; timestamp: number }> = []
 		let totalFunds = project.totalFunds || '0'
 		let contributors = project.contributors || 0
 		
 		if (project.onChainId) {
 			try {
-				// Get fundings from blockchain with timeout
 				const fundingPromise = getProjectFundings(project.onChainId)
 				const totalContributionsPromise = getProjectTotalContributions(project.onChainId)
 				
-				// Use Promise.allSettled to handle timeouts gracefully
 				const [fundingsResult, totalContributionsResult] = await Promise.allSettled([
 					fundingPromise,
 					totalContributionsPromise,
 				])
 				
-				// Process fundings if successful
 				if (fundingsResult.status === 'fulfilled') {
 					fundings = fundingsResult.value
-					// Calculate unique contributors count
 					const uniqueContributors = new Set(fundings.map(f => f.funder.toLowerCase()))
 					contributors = uniqueContributors.size
 				}
 				
-				// Process total contributions if successful
 				if (totalContributionsResult.status === 'fulfilled') {
 					totalFunds = totalContributionsResult.value
-					// Update database with synced data
 					project.totalFunds = totalFunds
 					project.contributors = contributors
 					await project.save()
 				}
 			} catch (error) {
-				// Continue with existing database values
 			}
 		}
 
@@ -260,10 +242,8 @@ export const verifyProject = async (req: Request, res: Response, next: NextFunct
 			}
 		}
 
-		// Verify on-chain
 		const txHash = await verifyProjectOnChain(onChainId)
 
-		// Update backend database
 		project.isVerified = true
 		await project.save()
 

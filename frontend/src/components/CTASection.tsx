@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 export const CTASection = () => {
@@ -6,7 +7,6 @@ export const CTASection = () => {
     <section className="py-24 px-4">
       <div className="container mx-auto max-w-4xl">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-secondary p-12 md:p-16 text-white text-center">
-          {/* Decorative circles */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
           
@@ -22,16 +22,20 @@ export const CTASection = () => {
                 variant="outline" 
                 size="lg" 
                 className="text-lg px-8 py-6 h-auto bg-white text-primary hover:bg-white/90"
+                asChild
               >
-                Get Started Free
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <Link to="/projects">
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
               </Button>
               <Button 
                 variant="ghost" 
                 size="lg" 
                 className="text-lg px-8 py-6 h-auto text-white hover:bg-white/10"
+                asChild
               >
-                Learn More
+                <Link to="/dashboard">Learn More</Link>
               </Button>
             </div>
           </div>

@@ -77,12 +77,13 @@ const ProjectDetail = () => {
 	}
 
 	// Use on-chain total contributions if available (fallback/real-time update)
-	if (totalContributions?.data) {
-		fundsRaised = Number(formatEther(totalContributions.data))
+	// This takes priority over backend data for real-time updates
+	if (totalContributions !== undefined && totalContributions !== null) {
+		fundsRaised = Number(formatEther(totalContributions))
 	}
 
 	const progress = fundsGoal > 0 ? (fundsRaised / fundsGoal) * 100 : 0
-	const userContributionAmount = userContribution?.data ? Number(formatEther(userContribution.data)) : 0
+	const userContributionAmount = userContribution !== undefined && userContribution !== null ? Number(formatEther(userContribution)) : 0
 	
 	// Convert to USD if ETH price is available
 	const fundsRaisedUSD = ethPrice ? fundsRaised * ethPrice : 0
@@ -232,7 +233,7 @@ const ProjectDetail = () => {
 						</Card>
 
 						{/* On-Chain Data */}
-						{onChainProject?.data && (
+						{onChainProject && (
 							<Card>
 								<CardHeader>
 									<CardTitle>On-Chain Information</CardTitle>
@@ -243,18 +244,18 @@ const ProjectDetail = () => {
 								<CardContent className="space-y-2">
 									<div className="flex items-center justify-between">
 										<span className="text-sm text-muted-foreground">On-Chain ID</span>
-										<span className="text-sm font-mono">{onChainProject.data.id?.toString()}</span>
+										<span className="text-sm font-mono">{onChainProject.id?.toString()}</span>
 									</div>
 									<div className="flex items-center justify-between">
 										<span className="text-sm text-muted-foreground">On-Chain Verified</span>
-										<Badge variant={onChainProject.data.isVerified ? 'default' : 'secondary'}>
-											{onChainProject.data.isVerified ? 'Yes' : 'No'}
+										<Badge variant={onChainProject.isVerified ? 'default' : 'secondary'}>
+											{onChainProject.isVerified ? 'Yes' : 'No'}
 										</Badge>
 									</div>
 									<div className="flex items-center justify-between">
 										<span className="text-sm text-muted-foreground">On-Chain Active</span>
-										<Badge variant={onChainProject.data.isActive ? 'default' : 'secondary'}>
-											{onChainProject.data.isActive ? 'Yes' : 'No'}
+										<Badge variant={onChainProject.isActive ? 'default' : 'secondary'}>
+											{onChainProject.isActive ? 'Yes' : 'No'}
 										</Badge>
 									</div>
 								</CardContent>
@@ -274,13 +275,18 @@ const ProjectDetail = () => {
 										projectId={onChainId || BigInt(0)}
 										projectName={projectData.name}
 										onSuccess={async () => {
-											// Refetch project data immediately after funding
 											if (id) {
+												await new Promise(resolve => setTimeout(resolve, 2000))
 												await queryClient.refetchQueries({ queryKey: ['project', id] })
-												// Also refetch on-chain data
 												if (onChainId) {
-													queryClient.invalidateQueries({ queryKey: ['projectTotalContributions'] })
-													queryClient.invalidateQueries({ queryKey: ['userContribution'] })
+													await queryClient.refetchQueries({ 
+														queryKey: ['projectTotalContributions'],
+														exact: false,
+													})
+													await queryClient.refetchQueries({ 
+														queryKey: ['userContribution'],
+														exact: false,
+													})
 												}
 											}
 										}}

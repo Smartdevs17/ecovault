@@ -149,7 +149,7 @@ const Profile = () => {
 											<div className="flex items-center justify-between">
 												<span className="text-sm text-muted-foreground">NFTs Owned</span>
 												<span className="text-sm font-semibold">
-													{nftsLoading ? '...' : (nftTokenIds?.data?.length || 0)}
+													{nftsLoading ? '...' : (nftTokenIds?.length || 0)}
 												</span>
 											</div>
 										</div>
@@ -252,7 +252,7 @@ const Profile = () => {
 											<Skeleton key={i} className="h-32 w-full" />
 										))}
 									</div>
-								) : !nftTokenIds?.data || nftTokenIds.data.length === 0 ? (
+								) : !nftTokenIds || nftTokenIds.length === 0 ? (
 									<div className="text-center py-8">
 										<ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
 										<p className="text-sm text-muted-foreground">No NFTs yet</p>
@@ -262,7 +262,7 @@ const Profile = () => {
 									</div>
 								) : (
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										{nftTokenIds.data.map((tokenId: bigint) => (
+										{nftTokenIds.map((tokenId: bigint) => (
 											<Card key={tokenId.toString()} className="bg-gradient-to-br from-card to-muted/20">
 												<CardContent className="p-4">
 													<div className="flex items-center gap-3">

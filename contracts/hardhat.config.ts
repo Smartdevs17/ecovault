@@ -35,10 +35,25 @@ const config: HardhatUserConfig = {
 		},
 	},
 	etherscan: {
-		apiKey: {
-			base: process.env.BASESCAN_API_KEY || '',
-			baseSepolia: process.env.BASESCAN_API_KEY || '',
-		},
+		apiKey: process.env.ETHERSCAN_API_KEY || process.env.BASESCAN_API_KEY || '',
+		customChains: [
+			{
+				network: 'baseSepolia',
+				chainId: 84532,
+				urls: {
+					apiURL: 'https://api-sepolia.basescan.org/api',
+					browserURL: 'https://sepolia.basescan.org',
+				},
+			},
+			{
+				network: 'base',
+				chainId: 8453,
+				urls: {
+					apiURL: 'https://api.basescan.org/api',
+					browserURL: 'https://basescan.org',
+				},
+			},
+		],
 	},
 	paths: {
 		sources: './contracts',
