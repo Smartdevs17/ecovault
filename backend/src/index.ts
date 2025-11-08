@@ -51,6 +51,11 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+//init route
+app.get('/', (_, res) => {
+	res.send('EcoVault Backend API')
+})
+
 // Health check endpoint
 app.get('/health', (_req, res) => {
 	res.json({
