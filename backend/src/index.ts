@@ -16,10 +16,8 @@ import userRoutes from './routes/users'
 const app = express()
 const PORT = process.env.PORT || 5000
 
-// Middleware
 app.use(helmet())
 
-// CORS configuration - allow multiple origins for development
 const allowedOrigins = [
 	process.env.FRONTEND_URL,
 	'http://localhost:8080',
@@ -71,34 +69,32 @@ app.use('/api/users', userRoutes)
 app.use(notFoundHandler)
 app.use(errorHandler)
 
-// Start server
-async function startServer() {
-	try {
-		// Connect to MongoDB
-		await connectDatabase()
+if (require.main === module) {
+	async function startServer() {
+		try {
+			await connectDatabase()
 
-		// Start Express server
-		const server = app.listen(PORT, () => {
-			console.log(`Server running on port ${PORT}`)
-		})
+			const server = app.listen(PORT, () => {
+				console.log(`Server running on port ${PORT}`)
+			})
 
-		// Handle port already in use error
-		server.on('error', (error: NodeJS.ErrnoException) => {
-			if (error.code === 'EADDRINUSE') {
-				console.error(`Port ${PORT} is already in use`)
-				process.exit(1)
-			} else {
-				console.error('Server error:', error)
-				process.exit(1)
-			}
-		})
-	} catch (error) {
-		console.error('Failed to start server:', error)
-		process.exit(1)
+			server.on('error', (error: NodeJS.ErrnoException) => {
+				if (error.code === 'EADDRINUSE') {
+					console.error(`Port ${PORT} is already in use`)
+					process.exit(1)
+				} else {
+					console.error('Server error:', error)
+					process.exit(1)
+				}
+			})
+		} catch (error) {
+			console.error('Failed to start server:', error)
+			process.exit(1)
+		}
 	}
-}
 
-startServer()
+	startServer()
+}
 
 export default app
 

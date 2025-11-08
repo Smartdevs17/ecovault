@@ -1,13 +1,8 @@
-/**
- * Wagmi hooks for EcoVault contract interactions
- */
-
 import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi'
 import { ecoVaultContract } from '@/lib/contracts/abis'
 import { parseEther } from 'viem'
 import { useAccount } from 'wagmi'
 
-// Fund project
 export function useFundProject() {
 	const { writeContract, data: hash, isPending, error, reset } = useWriteContract()
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
@@ -46,7 +41,6 @@ export function useProjectFundings(projectId: bigint | undefined) {
 	})
 }
 
-// Get user contribution
 export function useUserContributionOnChain(projectId: bigint | undefined) {
 	const { address } = useAccount()
 
@@ -55,26 +49,26 @@ export function useUserContributionOnChain(projectId: bigint | undefined) {
 		functionName: 'getUserContribution',
 		args: address && projectId ? [address, projectId] : undefined,
 		query: {
-			enabled: !!address && !!projectId,
-			refetchInterval: 5000, // Refetch every 5 seconds to get latest data
+			enabled: !!address && !!projectId && projectId > 0n,
+			refetchInterval: 3000,
+			staleTime: 1000,
 		},
 	})
 }
 
-// Get project total contributions
 export function useProjectTotalContributions(projectId: bigint | undefined) {
 	return useReadContract({
 		...ecoVaultContract,
 		functionName: 'getProjectTotalContributions',
 		args: projectId ? [projectId] : undefined,
 		query: {
-			enabled: !!projectId,
-			refetchInterval: 5000, // Refetch every 5 seconds to get latest data
+			enabled: !!projectId && projectId > 0n,
+			refetchInterval: 3000,
+			staleTime: 1000,
 		},
 	})
 }
 
-// Get minimum funding amount
 export function useMinFundingAmount() {
 	return useReadContract({
 		...ecoVaultContract,
@@ -82,7 +76,6 @@ export function useMinFundingAmount() {
 	})
 }
 
-// Get NFT mint threshold
 export function useNFTMintThreshold() {
 	return useReadContract({
 		...ecoVaultContract,

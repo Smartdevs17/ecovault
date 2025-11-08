@@ -1,23 +1,18 @@
 # 🌍 EcoVault
 
-**EcoVault** is a Web3-powered platform designed to **incentivize and track sustainable community projects**. It empowers organizations and individuals to **fund, verify, and showcase environmental impact** — all transparently on-chain.
-
-Built for the **Octant Hackathon**, EcoVault combines **React**, **TypeScript**, **Node.js (Express)**, **MongoDB**, and **smart contracts** to bring transparency and traceability to sustainability efforts.
-
----
+**EcoVault** is a Web3-powered platform designed to incentivize and track sustainable community projects. It empowers organizations and individuals to fund, verify, and showcase environmental impact — all transparently on-chain.
 
 ## 🚀 Features
 
-- 🔗 **Web3 Wallet Integration:** Connect via MetaMask or WalletConnect using `wagmi` and `ethers.js`
-- 🌱 **Impact Project Registry:** Organizations can create and showcase sustainability projects
-- 💰 **Fund Transparency:** Donors can contribute directly via smart contracts
-- 📊 **Impact Tracking:** Projects are tracked via both on-chain data and off-chain analytics stored in MongoDB
-- 🧾 **Verified Proof-of-Impact NFTs:** Contributors can mint NFTs as digital proof of their impact
-- ⚡ **Decentralized + Centralized Blend:** Blockchain for transparency, Node.js backend for analytics and scalability
-- ✅ **Project Verification:** Admin/verifier system for project validation
-- 📈 **Real-time Analytics:** Dashboard with impact metrics, charts, and leaderboards
-
----
+- **Web3 Wallet Integration:** Connect via MetaMask or WalletConnect using `wagmi` and `viem`
+- **Impact Project Registry:** Organizations can create and showcase sustainability projects
+- **Transparent Funding:** Donors can contribute directly via smart contracts with full on-chain transparency
+- **Impact Tracking:** Projects are tracked via both on-chain data and off-chain analytics stored in MongoDB
+- **Verified Proof-of-Impact NFTs:** Contributors can mint NFTs as digital proof of their impact
+- **Yield Donation Strategy:** All contributions are deposited into a treasury vault that generates yield through DeFi protocols (Kalani/Yearn v3 and Aave v3), with yield automatically routed to verified projects via Octant V2
+- **Project Verification:** Admin/verifier system for project validation
+- **Real-time Analytics:** Dashboard with impact metrics, charts, and leaderboards
+- **Yield Metrics Dashboard:** Track total deposits, available yield, and yield distribution in real-time
 
 ## 🏗️ Tech Stack
 
@@ -36,12 +31,16 @@ Built for the **Octant Hackathon**, EcoVault combines **React**, **TypeScript**,
 - REST API endpoints for managing project data and analytics
 
 ### Smart Contracts
-- Solidity (ERC721 for NFTs)
+- Solidity 0.8.20
 - Hardhat for development and deployment
 - OpenZeppelin contracts for security
+- ERC-4626 compliant vaults for yield generation
 - Deployed on Base Sepolia Testnet
 
----
+### DeFi Integrations
+- **Octant V2:** Automated yield allocation to verified projects
+- **Kalani (Yearn v3):** ERC-4626 vault integration for yield generation
+- **Aave v3:** ERC-4626 ATokenVault integration for alternative yield sources
 
 ## ⚙️ Installation & Setup
 
@@ -68,9 +67,11 @@ npm install
 Create `.env` file:
 ```env
 VITE_API_URL=http://localhost:5000/api
-VITE_PROJECT_REGISTRY_ADDRESS=0x01fB5005481DA32adB5A289db24fd08CBA46B07F
-VITE_IMPACT_NFT_ADDRESS=0x188B7587A753Ebd74fF0f5eF093933A041b52A96
-VITE_ECO_VAULT_ADDRESS=0xe35Df24D4747b246Fe8C9dDCA28BbC33aDcC2Bc2
+VITE_PROJECT_REGISTRY_ADDRESS=0x2637DaA81d7bDa9be540D9337642feB313Bc734c
+VITE_IMPACT_NFT_ADDRESS=0x92bfb1fe59eCd73920a3a2c29f61bDD7b43F2519
+VITE_ECO_VAULT_ADDRESS=0xAFdF5236B7564E885F835C9bb3FfA97Ae27bEb6A
+VITE_TREASURY_VAULT_ADDRESS=0xE604Dbf839c5f69116CFB5303E5f0f604F8562ad
+VITE_OCTANT_YIELD_ROUTER_ADDRESS=0xa94079b654C070EBb1734daF9BAEd81293a97f8F
 VITE_CHAIN_ID=84532
 VITE_NETWORK_NAME=baseSepolia
 VITE_RPC_URL=https://sepolia.base.org
@@ -97,9 +98,11 @@ PORT=5000
 MONGO_URI=mongodb://localhost:27017/ecovault
 PRIVATE_KEY=your_wallet_private_key
 RPC_URL=https://sepolia.base.org
-PROJECT_REGISTRY_ADDRESS=0x01fB5005481DA32adB5A289db24fd08CBA46B07F
-IMPACT_NFT_ADDRESS=0x188B7587A753Ebd74fF0f5eF093933A041b52A96
-ECO_VAULT_ADDRESS=0xe35Df24D4747b246Fe8C9dDCA28BbC33aDcC2Bc2
+PROJECT_REGISTRY_ADDRESS=0x2637DaA81d7bDa9be540D9337642feB313Bc734c
+IMPACT_NFT_ADDRESS=0x92bfb1fe59eCd73920a3a2c29f61bDD7b43F2519
+ECO_VAULT_ADDRESS=0xAFdF5236B7564E885F835C9bb3FfA97Ae27bEb6A
+TREASURY_VAULT_ADDRESS=0xE604Dbf839c5f69116CFB5303E5f0f604F8562ad
+OCTANT_YIELD_ROUTER_ADDRESS=0xa94079b654C070EBb1734daF9BAEd81293a97f8F
 CHAIN_ID=84532
 NETWORK_NAME=baseSepolia
 ```
@@ -122,7 +125,7 @@ Create `.env` file:
 ```env
 PRIVATE_KEY=your_private_key_without_0x_prefix
 BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
-BASESCAN_API_KEY=your_basescan_api_key
+ETHERSCAN_API_KEY=your_etherscan_api_key
 ```
 
 Compile contracts:
@@ -132,43 +135,26 @@ npm run compile
 
 Deploy to Base Sepolia:
 ```bash
-npm run deploy:base
+npm run deploy:testnet
 ```
-
----
 
 ## 📋 Contract Addresses (Base Sepolia)
 
-### ProjectRegistry
-```
-0x01fB5005481DA32adB5A289db24fd08CBA46B07F
-```
-**Explorer:** https://sepolia.basescan.org/address/0x01fB5005481DA32adB5A289db24fd08CBA46B07F
+### Core Contracts
+- **ProjectRegistry:** `0x2637DaA81d7bDa9be540D9337642feB313Bc734c`
+- **ImpactNFT:** `0x92bfb1fe59eCd73920a3a2c29f61bDD7b43F2519`
+- **EcoVault:** `0xAFdF5236B7564E885F835C9bb3FfA97Ae27bEb6A`
 
-**Purpose:** Manages sustainability project registration and verification
-
-### ImpactNFT
-```
-0x188B7587A753Ebd74fF0f5eF093933A041b52A96
-```
-**Explorer:** https://sepolia.basescan.org/address/0x188B7587A753Ebd74fF0f5eF093933A041b52A96
-
-**Purpose:** ERC721 NFT contract for minting proof-of-impact tokens
-
-### EcoVault
-```
-0xe35Df24D4747b246Fe8C9dDCA28BbC33aDcC2Bc2
-```
-**Explorer:** https://sepolia.basescan.org/address/0xe35Df24D4747b246Fe8C9dDCA28BbC33aDcC2Bc2
-
-**Purpose:** Main contract handling funding, NFT minting, and project interactions
+### Yield System Contracts
+- **TreasuryVault:** `0xE604Dbf839c5f69116CFB5303E5f0f604F8562ad`
+- **OctantYieldRouter:** `0xa94079b654C070EBb1734daF9BAEd81293a97f8F`
+- **SimpleERC4626Vault:** `0xbB3cEb5A63b2e4B801F376119735519ed014D22A` (testnet)
+- **SimpleOctantV2Allocator:** `0x77a7E580d1Bd2A81862C996e5B6F2dc3Ac1578dD` (testnet)
 
 **Network:** Base Sepolia  
 **Chain ID:** 84532  
 **Block Explorer:** https://sepolia.basescan.org  
 **Faucet:** https://www.coinbase.com/faucets/base-ethereum-goerli-faucet
-
----
 
 ## 🌐 API Routes
 
@@ -205,44 +191,6 @@ npm run deploy:base
 |--------|----------|-------------|
 | `GET` | `/health` | Server health check |
 
----
-
-## 📝 API Sample Data
-
-### Create Project
-
-```json
-{
-  "name": "Community Tree Planting Initiative",
-  "description": "Planting 10,000 trees across urban areas to combat climate change",
-  "fundingGoal": "100000000000000000000",
-  "owner": "0x575109e921C6d6a1Cb7cA60Be0191B10950AfA6C"
-}
-```
-
-**Funding Goal:** 100 ETH (100,000,000,000,000,000,000 wei)
-
-### Log Impact Action
-
-```json
-{
-  "user": "0x575109e921C6d6a1Cb7cA60Be0191B10950AfA6C",
-  "actionType": "recycling",
-  "amount": "15 kg",
-  "description": "Recycled plastic bottles, cardboard, and aluminum cans",
-  "carbonReduced": 12.5,
-  "waterSaved": 50
-}
-```
-
-**Action Types:** `recycling`, `transport`, `water`, `energy`, `tree_planting`, `project_funding`, `other`
-
-**Points Calculation:**
-- Base points by action type (recycling: 10, transport: 8, water: 5, energy: 12, tree_planting: 25, project_funding: 50, other: 5)
-- Bonus: +1 point per 10 kg of carbon reduced
-
----
-
 ## 🪙 Smart Contract Features
 
 ### ProjectRegistry
@@ -260,14 +208,26 @@ npm run deploy:base
 - `MIN_FUNDING_AMOUNT` - Minimum funding constant (0.001 ETH)
 - `NFT_MINT_THRESHOLD` - NFT minting threshold (0.01 ETH)
 
+### TreasuryVault
+- `depositForProject(projectId)` - Deposit funds for a project (authorized depositors only)
+- `withdrawPrincipal(projectId, amount)` - Withdraw principal from a project
+- `harvestYield()` - Harvest yield from yield sources
+- `availableYield()` - Get available yield for distribution
+- `totalDeposits()` - Get total deposits in treasury
+- `projectDeposits(projectId)` - Get project-specific deposits
+
+### OctantYieldRouter
+- `distributeYieldToVerifiedProjects()` - Distribute yield to verified projects via Octant V2
+- `setProjectImpactScore(projectId, score)` - Set impact score for a project
+- `batchSetImpactScores(projectIds, scores)` - Batch set impact scores
+- `projectImpactScore(projectId)` - Get impact score for a project
+
 ### ImpactNFT
 - `getUserNFTs(user)` - Get user's NFT token IDs
 - `getImpactData(tokenId)` - Get NFT impact data
 - `totalSupply()` - Get total NFT supply
 - `ownerOf(tokenId)` - Get NFT owner
 - `tokenURI(tokenId)` - Get NFT metadata URI
-
----
 
 ## 🗄️ Database Setup
 
@@ -289,37 +249,13 @@ MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/ecovault?re
 MONGO_URI=mongodb://localhost:27017/ecovault
 ```
 
----
-
-## 🧪 Testing
-
-### Postman Collection
-
-Import `backend/EcoVault_API.postman_collection.json` into Postman for API testing.
-
-**Collection Variables:**
-- `base_url` - API base URL (default: `http://localhost:5000`)
-- `wallet_address` - Wallet address for testing
-- `project_id` - Project ID (set after creating a project)
-
-### Test Workflow
-
-1. **Health Check:** Verify server is running
-2. **Create Project:** Create a new project
-3. **Verify Project:** Verify the project (verifier only)
-4. **Fund Project:** Fund the project (min 0.001 ETH)
-5. **Log Impact:** Log impact actions
-6. **Get Stats:** Check user statistics and leaderboard
-
----
-
 ## 📊 Project Architecture
 
 ```
 EcoVault Platform
 ├── Frontend (React + TypeScript)
 │   ├── Pages: Dashboard, Projects, Impact Tracking, Profile
-│   ├── Components: Project Cards, Impact Forms, NFT Display
+│   ├── Components: Project Cards, Impact Forms, NFT Display, Yield Metrics
 │   └── Hooks: Web3 hooks, API hooks
 ├── Backend (Node.js + Express)
 │   ├── API Routes: Projects, Impact, Users
@@ -329,10 +265,25 @@ EcoVault Platform
 └── Smart Contracts (Solidity)
     ├── ProjectRegistry: Project management
     ├── EcoVault: Funding and NFT minting
-    └── ImpactNFT: NFT contract
+    ├── ImpactNFT: NFT contract
+    ├── TreasuryVault: Yield-generating vault
+    └── OctantYieldRouter: Yield distribution via Octant V2
 ```
 
----
+## 💰 Yield Donation Strategy
+
+EcoVault implements an automated yield donation strategy:
+
+1. **Contribution Phase:** Users fund verified sustainability projects through EcoVault. Contributions are deposited into TreasuryVault (ERC-4626 compliant).
+
+2. **Yield Generation:** Treasury deposits funds into Kalani (Yearn v3) or Aave v3 vaults. Yield accumulates continuously from DeFi protocols.
+
+3. **Yield Distribution:** Harvested yield is routed through Octant V2 allocation contracts. Yield is distributed to verified projects based on:
+   - **Impact Score** - Higher impact projects receive more yield
+   - **Verification Status** - Only verified projects receive yield
+   - **Active Status** - Only active projects are eligible
+
+4. **Transparency:** All yield generation and distribution is on-chain. Users can track yield generated from their contributions, and projects can see yield donations received.
 
 ## 🔒 Security Features
 
@@ -342,8 +293,8 @@ EcoVault Platform
 - **OpenZeppelin:** Uses battle-tested OpenZeppelin contracts
 - **Environment Variables:** Sensitive data stored in `.env` files
 - **Wallet Validation:** Ethereum address format validation
-
----
+- **Authorized Depositors:** Only authorized addresses can deposit to treasury
+- **Yield Distributor Authorization:** Only authorized routers can distribute yield
 
 ## 🚀 Deployment
 
@@ -370,12 +321,10 @@ Deploy to your server or cloud platform (Heroku, Railway, etc.)
 
 ```bash
 cd contracts
-npm run deploy:base
+npm run deploy:testnet
 ```
 
 Update contract addresses in frontend and backend `.env` files.
-
----
 
 ## 🧠 Future Improvements
 
@@ -386,8 +335,7 @@ Update contract addresses in frontend and backend `.env` files.
 - Multi-chain support
 - Mobile app (React Native)
 - Social features (sharing, comments, ratings)
-
----
+- Mainnet deployment with real DeFi protocol integrations
 
 ## 🤝 Contributing
 
@@ -398,8 +346,6 @@ Contributions are welcome! Please:
 3. Make your changes
 4. Submit a pull request
 
----
-
 ## 📚 Additional Resources
 
 - **Base Sepolia Explorer:** https://sepolia.basescan.org
@@ -408,14 +354,11 @@ Contributions are welcome! Please:
 - **Hardhat Documentation:** https://hardhat.org
 - **wagmi Documentation:** https://wagmi.sh
 - **MongoDB Atlas:** https://www.mongodb.com/cloud/atlas
-
----
+- **Octant V2 Documentation:** https://docs.v2.octant.build
 
 ## 🧩 License
 
 MIT License © 2025 **EcoVault Team**
-
----
 
 ## 🆘 Troubleshooting
 
@@ -453,8 +396,6 @@ MIT License © 2025 **EcoVault Team**
 **"Project must be verified"**
 - Projects must be verified before funding
 - Check verifier permissions
-
----
 
 ## 📞 Support
 

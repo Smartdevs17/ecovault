@@ -39,8 +39,10 @@ export const NETWORK_NAME = 'Base Sepolia'
 
 // Contract addresses from environment variables
 export const contractAddresses = {
-	projectRegistry: import.meta.env.VITE_PROJECT_REGISTRY_ADDRESS || '0x01fB5005481DA32adB5A289db24fd08CBA46B07F',
-	impactNFT: import.meta.env.VITE_IMPACT_NFT_ADDRESS || '0x188B7587A753Ebd74fF0f5eF093933A041b52A96',
-	ecoVault: import.meta.env.VITE_ECO_VAULT_ADDRESS || '0xe35Df24D4747b246Fe8C9dDCA28BbC33aDcC2Bc2',
+	projectRegistry: import.meta.env.VITE_PROJECT_REGISTRY_ADDRESS || '0x2637DaA81d7bDa9be540D9337642feB313Bc734c',
+	impactNFT: import.meta.env.VITE_IMPACT_NFT_ADDRESS || '0x92bfb1fe59eCd73920a3a2c29f61bDD7b43F2519',
+	ecoVault: import.meta.env.VITE_ECO_VAULT_ADDRESS || '0xAFdF5236B7564E885F835C9bb3FfA97Ae27bEb6A',
+	treasuryVault: import.meta.env.VITE_TREASURY_VAULT_ADDRESS || '0xE604Dbf839c5f69116CFB5303E5f0f604F8562ad',
+	octantYieldRouter: import.meta.env.VITE_OCTANT_YIELD_ROUTER_ADDRESS || '0xa94079b654C070EBb1734daF9BAEd81293a97f8F',
 }
 

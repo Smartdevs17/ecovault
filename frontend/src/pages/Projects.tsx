@@ -11,6 +11,7 @@ import { useETHPrice } from '@/hooks/useETHPrice'
 import { formatEther } from 'viem'
 import { CreateProjectDialog } from '@/components/CreateProjectDialog'
 import { FundProjectDialog } from '@/components/FundProjectDialog'
+import { YieldMetrics } from '@/components/YieldMetrics'
 import { useAccount } from 'wagmi'
 
 const Projects = () => {
@@ -38,6 +39,11 @@ const Projects = () => {
 							Connect Wallet to Create
 						</Button>
 					)}
+				</div>
+
+				{/* Yield Metrics Dashboard */}
+				<div className="mb-8">
+					<YieldMetrics />
 				</div>
 
 				{isLoading && (
@@ -84,19 +90,15 @@ const Projects = () => {
 						) : (
 							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 								{projects.map((project: any) => {
-									// Safely convert funding values - handle both string and bigint formats
 									let fundsRaised = 0
 									let fundsGoal = 0
 									
 									try {
-										// Use totalFunds from backend (synced from blockchain)
 										if (project.totalFunds) {
 											const totalFundsStr = String(project.totalFunds)
 											if (totalFundsStr.includes('.')) {
-												// Already in ETH format
 												fundsRaised = parseFloat(totalFundsStr)
 											} else {
-												// In wei format, convert to ETH
 												fundsRaised = Number(formatEther(BigInt(totalFundsStr)))
 											}
 										}
@@ -107,16 +109,12 @@ const Projects = () => {
 									try {
 										if (project.fundingGoal) {
 											const fundingGoalStr = String(project.fundingGoal)
-											// Check if it's in wei format (large integer) or ETH format (decimal)
 											if (fundingGoalStr.includes('.')) {
-												// Already in ETH format, use directly
 												fundsGoal = parseFloat(fundingGoalStr)
 											} else {
-												// In wei format, convert to ETH
 												try {
 													fundsGoal = Number(formatEther(BigInt(fundingGoalStr)))
 												} catch {
-													// If BigInt conversion fails, try parsing as float
 													fundsGoal = parseFloat(fundingGoalStr)
 												}
 											}
@@ -127,8 +125,6 @@ const Projects = () => {
 									
 									const progress = fundsGoal > 0 ? (fundsRaised / fundsGoal) * 100 : 0
 									const status = project.active ? 'active' : 'funding'
-									
-									// Convert to USD if ETH price is available
 									const fundsRaisedUSD = ethPrice ? fundsRaised * ethPrice : 0
 									const fundsGoalUSD = ethPrice ? fundsGoal * ethPrice : 0
 									
