@@ -1,0 +1,25 @@
+{
+	"name": "ecovault-contracts",
+	"version": "1.0.0",
+	"description": "EcoVault Smart Contracts",
+	"main": "index.js",
+	"scripts": {
+		"compile": "hardhat compile",
+		"test": "hardhat test",
+		"deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+		"deploy:testnet": "hardhat run scripts/deploy.ts --network baseSepolia",
+		"deploy:base": "hardhat run scripts/deploy.ts --network base",
+		"node": "hardhat node",
+		"clean": "hardhat clean"
+	},
+	"devDependencies": {
+		"@nomicfoundation/hardhat-toolbox": "^5.0.0",
+		"@nomicfoundation/hardhat-verify": "^2.0.0",
+		"@openzeppelin/contracts": "^5.0.0",
+		"hardhat": "^2.22.0"
+	},
+	"dependencies": {
+		"dotenv": "^16.4.5"
+	}
+}
+

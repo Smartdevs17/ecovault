@@ -1,0 +1,177 @@
+# ============================================
+# EcoVault - Root .gitignore
+# ============================================
+# This file protects sensitive files across the entire project
+
+# ============================================
+# Environment Variables - PROTECT ALL .env FILES
+# ============================================
+# Protect .env files in all directories
+.env
+.env.*
+!.env.example
+*.env
+*.env.local
+*.env.development
+*.env.production
+*.env.test
+
+# ============================================
+# Node.js
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+
+# ============================================
+# Build Outputs
+# ============================================
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.nuxt/
+.vite/
+*.tsbuildinfo
+
+# ============================================
+# IDE & Editor Files
+# ============================================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ============================================
+# Testing
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+.cache/
+.temp/
+*.local
+
+# ============================================
+# OS Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ============================================
+# Smart Contracts (Hardhat)
+# ============================================
+# These are already in contracts/.gitignore but added here for safety
+artifacts/
+cache/
+typechain-types/
+deployments/
+coverage/
+coverage.json
+
+# ============================================
+# Database
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# ============================================
+# Secrets & Keys
+# ============================================
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+.secrets/
+*.secret
+
+# ============================================
+# Package Manager Locks (optional - uncomment if you want to ignore)
+# ============================================
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ============================================
+# Misc
+# ============================================
+*.pid
+*.seed
+*.pid.lock
+.npm
+.eslintcache
+.stylelintcache
+
+# ============================================
+# Backend specific
+# ============================================
+backend/dist/
+backend/.env
+backend/.env.*
+
+# ============================================
+# Frontend specific
+# ============================================
+frontend/dist/
+frontend/.env
+frontend/.env.*
+
+# ============================================
+# Contracts specific
+# ============================================
+contracts/.env
+contracts/.env.*
+contracts/artifacts/
+contracts/cache/
+contracts/typechain-types/
+contracts/deployments/
+contracts/coverage/
+
+# ============================================
+# Bun
+# ============================================
+bun.lockb
+
